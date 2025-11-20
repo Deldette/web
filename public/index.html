@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    
+    <link rel="stylesheet" href="style/style.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <form id="authForm">
+            <h1>Логин</h1>
+
+            <div class="input-box">
+                <input type="text" id="email" placeholder="E-mail" required>
+            </div>
+
+            <div class="input-box">
+                <input type="password" id="password" placeholder="Пароль" required>
+            </div>
+
+            <button type="button" class="btn-login" onclick="login()">Войти</button>
+            <button type="button" class="btn-register" onclick="register()">Зарегистрироваться</button>
+            
+            <div id="message" class="message"></div>
+        </form>
+    </div>
+
+    <script>
+        // Функция регистрации
+        async function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showMessage('Заполните все поля!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+                showMessage(result.message, result.success ? 'success' : 'error');
+                
+                if (result.success) {
+                    document.getElementById('authForm').reset();
+                }
+            } catch (error) {
+                showMessage('Ошибка соединения с сервером', 'error');
+            }
+        }
+
+        // Функция входа
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showMessage('Заполните все поля!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+                showMessage(result.message, result.success ? 'success' : 'error');
+                
+                if (result.success) {
+                    document.getElementById('authForm').reset();
+                    // Здесь можно добавить редирект после успешного входа
+                    // window.location.href = '/dashboard.html';
+                }
+            } catch (error) {
+                showMessage('Ошибка соединения с сервером', 'error');
+            }
+        }
+
+        // Функция для отображения сообщений
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            // Автоматическое скрытие сообщения через 5 секунд
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Обработка нажатия Enter
+        document.getElementById('authForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
